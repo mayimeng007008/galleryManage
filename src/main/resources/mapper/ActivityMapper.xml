@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.crown.mapper.ActivityMapper">
+
+<update id="deleteByPath">
+update webimages set deleted = 1 where img_path=#{imgName}
+
+</update>
+<update id="updateStatusById">
+update webimages set deleted = 1 where id=#{id}
+
+</update>
+<update id="deleteAllImgs">
+update webimages set deleted = 1 where gallery_uuid=#{uuId}
+
+</update>
+
+
+</mapper>

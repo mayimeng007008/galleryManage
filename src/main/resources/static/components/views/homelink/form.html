@@ -1,0 +1,107 @@
+<form id="homelink-form" lay-filter="homelink-form" class="layui-form model-form">
+    <input name="id" type="hidden"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">菜单名称</label>
+        <div class="layui-input-block">
+            <input name="nameZhTw" placeholder="请输入菜单名称" type="text" class="layui-input" maxlength="20"
+                   lay-verify="required"/>
+        </div>
+    </div>
+    
+    <div class="layui-form-item">
+        <label class="layui-form-label">连结方式</label>
+        <div class="layui-input-block">
+            <select name="isblank" lay-verify="required" lay-filter="isblank">
+                <option value="1" selected="selected">开新视窗</option>
+                <option value="2">拥有第二层</option>
+                <option value="0">本页开启</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item" >
+        <label class="layui-form-label">连结网址</label>
+        <div class="layui-input-block">
+            <input name="strurl" placeholder="请输入连结网址" type="text" class="layui-input" maxlength="233"/>
+        </div>
+    </div>
+    
+    <div class="layui-form-item">
+        <label class="layui-form-label">是否显示</label>
+        <div class="layui-input-block">
+            <input type="radio" name="display" value="1" title="显示" checked="checked">
+            <input type="radio" name="display" value="0" title="关闭">
+        </div>
+    </div>
+    
+    <div class="layui-form-item" >
+        <label class="layui-form-label">排序</label>
+        <div class="layui-input-block">
+            <input name="sortnum" placeholder="请输入排序数" type="text" class="layui-input" maxlength="64" lay-verify=""/>
+        </div>
+    </div>
+    
+    <div class="layui-form-item" >
+        <label class="layui-form-label">点阅率</label>
+        <div class="layui-input-block">
+            <input name="clicknum" placeholder="请输入点阅率数" type="text" class="layui-input" maxlength="64" lay-verify=""/>
+        </div>
+    </div>
+    
+    <div class="layui-form-item">
+        <label class="layui-form-label">上级菜单</label>
+        <div class="layui-input-block">
+            <select id="parent" name="parent" lay-filter="parent" lay-verify="required">
+                <option value="">请选择</option>
+                <option value="0">首级菜单</option>
+                <option p-for="parents" p-bind="value:{{id}}">{{name}}</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="layui-form-item model-form-footer">
+        <button class="layui-btn layui-btn-primary close" type="button">取消</button>
+        <button class="layui-btn" lay-filter="homelink-form-submit" lay-submit>保存</button>
+    </div>
+</form>
+
+<script>
+    layui.use(['layer', 'crown', 'form', 'iconPicker', 'formSelects'], function () {
+        var layer = layui.layer;
+        var crown = layui.crown;
+        var form = layui.form;
+        var $ = layui.jquery;
+        var iconPicker = layui.iconPicker;
+        var formSelects = layui.formSelects;
+        var homelink = crown.getTempData('t_homelink');
+
+        // 获取所有菜单
+        crown.get('/homelinks/combos', {}, function (data) {
+            $('#parent').vm({parents: data.result});
+            form.render('select');
+            // 回显homelink数据
+            crown.fromVal('homelink-form', homelink);
+        });
+        
+        // 表单提交事件
+        form.on('submit(homelink-form-submit)', function (data) {
+            
+            layer.load(2);
+            if (data.field.id) {
+                crown.put('/homelinks/' + data.field.id, {data: data.field}, function () {
+                    layer.closeAll('loading');
+                    layer.msg('修改成功', {icon: 1});
+                    crown.finishPopupCenter();
+                });
+            } else {
+                crown.post('/homelinks', {data: data.field}, function () {
+                    layer.closeAll('loading');
+                    layer.msg('添加成功', {icon: 1});
+                    crown.finishPopupCenter();
+                });
+            }
+            return false;
+        });
+        
+        form.render();
+    });
+</script>

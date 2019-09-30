@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.crown.mapper.ActivityDetailsMapper">
+	<update id="updateDetail">
+	
+		update webactivity_detail set activity_title=#{activityTitle} ,activity_detail=#{activityDetail} ,img1=#{img1}, img2=#{img2} where activity_uuid=#{activiyUuid}
+	</update>
+	<select id="selectByImgName" resultType="ActivityDetail">
+	select * from  webactivity_detail where img1=#{imgName}
+	</select>
+	<update id="deleteImg1">
+		update webactivity_detail set img1=null where img1=#{imgName}
+	</update>
+	<update id="deleteImg2">
+		update webactivity_detail set img2=null where img2=#{imgName}
+	</update>
+
+</mapper>

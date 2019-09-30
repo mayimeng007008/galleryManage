@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.crown.mapper.VisitedLogMapper">
+
+    <select id="getVisitedLogLists" resultType="VisitedTable">
+        SELECT count(*) clickNum, substr(CREATED_DATE, 1, #{dateType}) createdate, page as pagePath 
+        FROM websitepagehitcount 
+    		<where>
+    			<choose>
+	               <when test="startDate != '' and endDate != '' and startDate != null and endDate != null">
+	                   CREATED_DATE BETWEEN #{startDate} AND #{endDate}
+	               </when>
+	               <otherwise>
+	                   CREATED_DATE BETWEEN DATE_SUB(curdate(),INTERVAL 1 DAY)  AND DATE_SUB(curdate(),INTERVAL -1 DAY)
+	               </otherwise>
+	           </choose>
+	           
+    			<if test="pagePath != null and pagePath != ''">
+					and page =#{pagePath}
+				</if>
+				
+    		</where>
+    		GROUP BY substr(CREATED_DATE, 1, #{dateType})
+			ORDER BY  CREATED_DATE desc
+    </select>
+
+
+</mapper>

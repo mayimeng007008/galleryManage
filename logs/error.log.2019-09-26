@@ -1,0 +1,4 @@
+2019-09-26 18:14:21.814 MybatisConfiguration.java:98 - mapper[org.crown.mapper.ActivityDetailsMapper.updateDetail] is ignored, because it exists, maybe from xml file
+2019-09-26 19:25:20.024 MybatisConfiguration.java:98 - mapper[org.crown.mapper.ActivityDetailsMapper.updateDetail] is ignored, because it exists, maybe from xml file
+2019-09-26 19:26:44.128 MybatisConfiguration.java:98 - mapper[org.crown.mapper.ActivityDetailsMapper.updateDetail] is ignored, because it exists, maybe from xml file
+2019-09-26 19:53:35.030 MybatisConfiguration.java:98 - mapper[org.crown.mapper.ActivityDetailsMapper.updateDetail] is ignored, because it exists, maybe from xml file

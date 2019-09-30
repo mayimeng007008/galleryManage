@@ -1,0 +1,157 @@
+<div class="layui-card">
+    <div class="layui-card-header">
+        <h2 class="header-title">使用者管理</h2>
+        <span class="layui-breadcrumb pull-right">
+          <a href="#!console">首页</a>
+          <a><cite>使用者管理</cite></a>
+        </span>
+    </div>
+    <div class="layui-card-body">
+        <!-- 搜索条件 -->
+        <div class="layui-form toolbar">
+            <form id="searchForm" onsubmit="return false;">
+                账号：<input name="employeeid" class="layui-input search-input" type="text" placeholder="输入账号"/>&emsp;
+                使用者姓名：<input name="employeename" class="layui-input search-input" type="text" placeholder="输入使用者姓名"/>&emsp;
+                状态：<select name="islock" lay-verify="">
+                <option value="">请选择状态</option>
+                <option value="0">开启</option>
+                <option value="1">关闭</option>
+            </select>
+                <button id="employee-btn-search" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
+            </form>
+        </div>
+        <!-- 表格顶部操作列 -->
+        <script type="text/html" id="employee-toolbar">
+            <div class="layui-btn-container">
+                {{# if({{addShow}} == true){ }}
+                <button class="layui-btn layui-btn-normal layui-btn-sm" lay-event="add"><i
+                        class="layui-icon">&#xe654;</i>添加
+                </button>
+                {{# } }}
+            </div>
+        </script>
+        <table class="layui-table" id="employee-table" lay-filter="employee-table"></table>
+    </div>
+</div>
+
+<!-- 表格操作列 -->
+<script type="text/html" id="employee-table-bar">
+    {{#  if({{editShow}} == true){ }}
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
+    {{#  } }}
+    {{#  if({{deleteShow}} == true){ }}
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    {{#  } }}
+
+</script>
+
+<!-- 表格状态列 -->
+<script type="text/html" id="employee-tpl-islock">
+    <input type="checkbox" lay-filter="employee-tpl-islock" value="{{d.id}}" lay-skin="switch"
+           lay-text="开启|关闭" {{d.islock==0?'checked':''}}/>
+</script>
+
+<script>
+    layui.use(['form', 'table', 'config', 'crown'], function () {
+        var form = layui.form;
+        var table = layui.table;
+        var config = layui.config;
+        var layer = layui.layer;
+        var crown = layui.crown;
+        $('#employee-toolbar').vm({
+            addShow: crown.hasPerm("sys:employee:add")
+        });
+        $('#employee-table-bar').vm({
+            editShow: crown.hasPerm("sys:employee:edit"),
+            deleteShow: crown.hasPerm("sys:employee:delete")
+        });
+        // 渲染表格
+        var employeeTable = table.render({
+            elem: '#employee-table',
+            toolbar: '#employee-toolbar',
+            url: config.serverUrl + '/employees',
+            request: config.request,
+            parseData: config.parseData,
+            response: config.response,
+            headers: {Authorization: config.getToken()},
+            page: true,
+            cols: [[
+                {field: 'id', width: 60, title: 'ID'},
+                {field: 'employeeid', align: 'center', sort: true, title: '账号'},
+                {field: 'employeename', align: 'center', sort: true, title: '使用者姓名'},
+                {field: 'orgname', align: 'center', sort: true, title: '权限群组'},
+                {field: 'cellphone', align: 'center', sort: true, title: '手机号'},
+                {field: 'email', align: 'center', sort: true, title: '邮箱'},
+                {field: 'createTime', align: 'center', sort: true, title: '创建时间'},
+                {field: 'islock', align: 'center', sort: true, templet: '#employee-tpl-islock', title: '状态'},
+                {align: 'center', toolbar: '#employee-table-bar', title: '操作'}
+            ]]
+        });
+
+        
+        // 表格顶部操作列
+        table.on('toolbar(employee-table)', function (obj) {
+            if (obj.event === 'add') {
+                showEditModel( );
+            }
+        });
+        // 表格操作列事件
+        table.on('tool(employee-table)', function (obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+
+            if (layEvent === 'edit') {
+                // 修改
+                showEditModel(data);
+            }
+            else if (obj.event === 'del') {
+            	doDelete(obj);
+            }
+        });
+
+        //显示表单弹窗
+        var showEditModel = function (data) {
+            if (data) {
+                crown.get('/employees/' + data.id, {async:false}, function (data) {
+                    crown.putTempData('t_employee', data.result);
+                });
+            }
+            crown.popupCenter({
+                title: data ? '修改使用者' : '添加使用者',
+                path: 'components/views/employee/form.html',
+                finish: function () {
+                	employeeTable.reload({where: crown.getSearchForm()});
+                }
+            });
+        };
+
+        // 搜索按钮点击事件
+        $('#employee-btn-search').click(function () {
+            employeeTable.reload({where: crown.getSearchForm()});
+        });
+
+        // 修改employee状态
+        form.on('switch(employee-tpl-islock)', function (obj) {
+            layer.load(2);
+            crown.put('/employees/' + obj.elem.value + '/status',
+                {data: {islock: obj.elem.checked ? 0 : 1}}, function () {
+                    layer.closeAll('loading');
+                    layer.msg('使用者状态更新成功', {icon: 1});
+                });
+        });
+        
+     	// 删除
+        var doDelete = function (obj) {
+            layer.confirm('确定要删除吗？', function (i) {
+                layer.close(i);
+                layer.load(2);
+                crown.delete('/employees/' + obj.data.id, {}, function () {
+                    layer.closeAll('loading');
+                    layer.msg('删除成功', {icon: 1});
+                    obj.del();
+                });
+                employeeTable.reload({where: crown.getSearchForm()});
+            });
+        };
+    });
+</script>

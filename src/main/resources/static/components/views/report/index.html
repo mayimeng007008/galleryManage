@@ -1,0 +1,205 @@
+<div class="layui-card">
+    <div class="layui-card-header">
+        <h2 class="header-title">登录记录报表管理</h2>
+        <span class="layui-breadcrumb pull-right">
+          <a href="#!console">首页</a>
+          <a><cite>登录记录报表管理</cite></a>
+        </span>
+    </div>
+    
+    <div class="layui-card-body">
+	     <!-- 搜索条件 -->
+	     <div class="layui-form toolbar" style="margin-bottom: 15px;">
+	         <form id="searchForm" onsubmit="return false;">
+	               用户编号：<input name="userId" class="layui-input search-input" type="text" placeholder="输入用户编号"/>&emsp;
+	               统计时间区段：<input id="startDate" name="startDate" type="text" class="layui-input search-input" required="required">
+				~ <input id="endDate" name="endDate"  type="text" class="layui-input search-input" required="required">
+	&emsp;			
+	                选择统计型式：
+	               <select name="dateType" lay-verify="">
+	                   <option value="10" selected>日</option>
+	                   <option value="7">月</option>
+	                   <option value="4">年</option>
+	               </select>
+	               <button id="report-btn-search" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索
+	               </button>
+	           </form>
+	       </div>
+       
+       	<div class="layui-tab layui-tab-card">
+		  <ul class="layui-tab-title">
+		    <li class="layui-this">预览结果</li>
+		    <li>折线图图表</li>
+		    <li>扇形图图表</li>
+		  </ul>
+		  <div class="layui-tab-content" style="height: auto;padding: 0px;">
+		    <div class="layui-tab-item layui-show">
+				<table class="layui-table" id="report-table" lay-filter="report-table"></table>
+			</div>
+		    <div class="layui-tab-item">
+				<table class="layui-table" id="line-table" lay-filter="line-table">
+					<canvas id="line-chart" width="100%" height="32"></canvas>
+				</table>	
+			</div>
+		    <div class="layui-tab-item">
+				<table class="layui-table" id="pie-table" lay-filter="pie-table">
+					<canvas id="pie-chart" width="100%" height="32"></canvas>
+				</table>	
+			</div>
+		  </div>
+		</div>
+		
+		<!-- 表格顶部操作列 -->
+        <script type="text/html" id="report-toolbar">
+            <div class="layui-btn-container">
+                
+            </div>
+        </script>
+    </div>
+    
+</div>
+
+<style>
+	.layui-tab-item #line-chart{
+		height:auto;
+		max-height:700px !important;
+	}
+	
+	.layui-tab-item #pie-chart{
+		height:auto ;
+		max-height:700px !important;
+	}
+</style>
+<script type="text/javascript" src="assets/libs/chart.js/chart.js"></script>
+<script>
+    layui.use(['form', 'table', 'config', 'crown', 'laydate'], function () {
+        var table = layui.table;
+        var config = layui.config;
+        var layer = layui.layer;
+        var crown = layui.crown;
+        var laydate = layui.laydate;
+        
+        laydate.render({
+          elem: '#startDate' //指定元素
+        });
+        laydate.render({
+          elem: '#endDate' //指定元素
+        });
+        /* 
+        table.render({
+        	elem: '#line-table',
+        	defaultToolbar: ['print']
+       	});
+       
+        table.render({
+        	elem: '#pie-table',
+        	defaultToolbar: ['print']
+       	}); */
+        // 渲染表格
+        var reportTable = table.render({
+            elem: '#report-table',
+            toolbar: '#report-toolbar', 
+            url: config.serverUrl + '/reports/loginLogs',
+            request: config.request,
+            parseData: config.parseData,
+            response: config.response,
+            headers: {Authorization: config.getToken()},
+            page: true,
+            cols: [[
+                {field: 'createdate', align: 'center', sort: true, title: '日期'},
+                {field: 'userId', align: 'center', sort: true, title: '用户编号'},
+                {field: 'successTimes', align: 'center', sort: true, title: '登陆成功次数'},
+                {field: 'failTimes', align: 'center', sort: true, title: '登录失败次数'}
+            ]],
+            done: function(res, curr, count){
+                //如果是异步请求数据方式，res即为你接口返回的信息。
+                //console.log(res.data);
+                var successTimesArr = [], dateArr = [], 
+                	result = res.data;
+                for(var info in result){
+					if(result[info].islogin===1){
+						successTimesArr.push(result[info].count);
+						dateArr.push(result[info].createdate);
+					}
+				}
+                
+                /**
+    		     * Line Chart
+    		     */
+    		    var lineChart = $('#line-chart');
+
+    		    if (lineChart.length > 0) {
+    		        new Chart(lineChart, {
+    		            type: 'line',
+    		            data: {
+    		                labels: dateArr,
+    		                datasets: [{
+    		                    label: '登陆成功次数',
+    		                    data: successTimesArr,
+    		                    backgroundColor: 'rgba(66, 165, 245, 0.5)',
+    		                    borderColor: '#2196F3',
+    		                    borderWidth: 1
+    		                }]
+    		            },
+    		            options: {
+    		                legend: {
+    		                    display: false
+    		                },
+    		                scales: {
+    		                    yAxes: [{
+    		                        ticks: {
+    		                            beginAtZero: true
+    		                        }
+    		                    }]
+    		                }
+    		            }
+    		        });
+    		    }
+    		    
+    		    
+    		    /**
+    		     * Pie Chart
+    		     */
+    		    var pieChart = $('#pie-chart');
+    			var colorsArr = [];
+    			for(var i =0; i<successTimesArr.length;i++){
+    				if(successTimesArr[i] > 255){//red
+    					colorsArr.push('rgba(255, '+(successTimesArr[i]%255)+', '+(successTimesArr[i]*20%255)+', 0.5)');
+    					
+    				} else if(successTimesArr[i] > 168){//green
+    					colorsArr.push('rgba('+(successTimesArr[i]%255)+', 255,'+(successTimesArr[i]*20%255)+', 0.5)');
+    					
+    				} else{//blue
+    					colorsArr.push('rgba('+(successTimesArr[i]%255)+', '+(successTimesArr[i]*20%255)+', 255, 0.5)');
+    					
+    				}
+    				
+    			}
+    		    
+    		    if (pieChart.length > 0) {
+    		        new Chart(pieChart, {
+    		            type: 'pie',
+    		            data: {
+    		                labels: dateArr,
+    		                datasets: [{
+    		                    label: '登陆成功次数',
+    		                    data: successTimesArr,
+    		                    backgroundColor: colorsArr,
+    		                    borderColor: colorsArr,
+    		                    borderWidth: 1
+    		                }]
+    		            }
+    		        });
+    		    }
+	
+              }
+        });
+        
+        
+        // 搜索按钮点击事件
+        $('#report-btn-search').click(function () {
+            reportTable.reload({where: crown.getSearchForm()});
+		    
+        });
+    });
+</script>

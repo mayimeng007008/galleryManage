@@ -1,0 +1,198 @@
+<div class="layui-card">
+    <div class="layui-card-header">
+        <h2 class="header-title">馆藏点击率报表管理</h2>
+        <span class="layui-breadcrumb pull-right">
+          <a href="#!console">首页</a>
+          <a><cite>馆藏点击率报表管理</cite></a>
+        </span>
+    </div>
+    
+    <div class="layui-card-body">
+	     <!-- 搜索条件 -->
+	     <div class="layui-form toolbar" style="margin-bottom: 15px;">
+	         <form id="searchForm" onsubmit="return false;">
+	               页面路径：<input name="pagePath" class="layui-input search-input" type="text" placeholder="输入页面路径"/>&emsp;
+	               统计时间区段：<input id="startDate" name="startDate" type="text" class="layui-input search-input" required="required">
+				~ <input id="endDate" name="endDate"  type="text" class="layui-input search-input" required="required">
+	&emsp;			
+	                选择统计型式：
+	               <select name="dateType" lay-verify="">
+	                   <option value="10" selected>日</option>
+	                   <option value="7">月</option>
+	                   <option value="4">年</option>
+	               </select>
+	               <button id="pageClicks-btn-search" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索
+	               </button>
+	           </form>
+	       </div>
+       
+       	<div class="layui-tab layui-tab-card">
+		  <ul class="layui-tab-title">
+		    <li class="layui-this">预览结果</li>
+		    <li>折线图图表</li>
+		    <li>扇形图图表</li>
+		  </ul>
+		  <div class="layui-tab-content" style="height: auto;padding: 0px;">
+		    <div class="layui-tab-item layui-show">
+				<table class="layui-table" id="pageClicks-table" lay-filter="pageClicks-table"></table>
+			</div>
+		    <div class="layui-tab-item">
+				<table class="layui-table" id="line-table" lay-filter="line-table">
+					<canvas id="line-chart" width="100%" height="32" style="height:700px !important;"></canvas>
+				</table>	
+			</div>
+		    <div class="layui-tab-item">
+				<table class="layui-table" id="pie-table" lay-filter="pie-table">
+					<canvas id="pie-chart" width="100%" height="32" style=""></canvas>
+				</table>	
+			</div>
+		  </div>
+		</div>
+		
+		<!-- 表格顶部操作列 -->
+        <script type="text/html" id="pageClicks-toolbar">
+            <div class="layui-btn-container">
+                
+            </div>
+        </script>
+    </div>
+    
+</div>
+<style>
+	.layui-tab-item #line-chart{
+		height:auto;
+		max-height:700px !important;
+	}
+	
+	.layui-tab-item #pie-chart{
+		height:auto ;
+		max-height:700px !important;
+	}
+</style>
+<script type="text/javascript" src="assets/libs/chart.js/chart.js"></script>
+<script>
+    layui.use(['form', 'table', 'config', 'crown', 'laydate'], function () {
+        var table = layui.table;
+        var config = layui.config;
+        var layer = layui.layer;
+        var crown = layui.crown;
+        var laydate = layui.laydate;
+        
+        laydate.render({
+          elem: '#startDate' //指定元素
+        });
+        laydate.render({
+          elem: '#endDate' //指定元素
+        });
+        /* 
+       
+        table.render({
+        	elem: '#pie-table',
+        	defaultToolbar: ['print']
+       	}); */
+        // 渲染表格
+        var pageClicksTable = table.render({
+            elem: '#pageClicks-table',
+            toolbar: '#pageClicks-toolbar', 
+            url: config.serverUrl + '/pageClickss/pageVistedLogs',
+            request: config.request,
+            parseData: config.parseData,
+            response: config.response,
+            headers: {Authorization: config.getToken()},
+            page: true,
+            cols: [[
+                {field: 'createdate', align: 'center', sort: true, title: '日期'},
+                {field: 'clickNum', align: 'center', sort: true, title: '访问次数'},
+                {field: 'pagePath', align: 'center', sort: true, title: '页面路径'}/* ,
+                {field: 'pageName', align: 'center', sort: true, title: '页面名称'} */
+            ]],
+            done: function(res, curr, count){
+                //如果是异步请求数据方式，res即为你接口返回的信息。
+                //console.log(res.data);
+                var clickNum = [], dateArr = [], 
+                	result = res.data;
+                for(var info in result){
+						clickNum.push(result[info].clickNum);
+						dateArr.push(result[info].createdate);
+				}
+                
+                /**
+    		     * Line Chart
+    		     */
+    		    var lineChart = $('#line-chart');
+
+    		    if (lineChart.length > 0) {
+    		        new Chart(lineChart, {
+    		            type: 'line',
+    		            data: {
+    		                labels: dateArr,
+    		                datasets: [{
+    		                    label: '访问次数',
+    		                    data: clickNum,
+    		                    backgroundColor: 'rgba(66, 165, 245, 0.5)',
+    		                    borderColor: '#2196F3',
+    		                    borderWidth: 1
+    		                }]
+    		            },
+    		            options: {
+    		                legend: {
+    		                    display: false
+    		                },
+    		                scales: {
+    		                    yAxes: [{
+    		                        ticks: {
+    		                            beginAtZero: true
+    		                        }
+    		                    }]
+    		                }
+    		            }
+    		        });
+    		    }
+    		    
+    		    
+    		    /**
+    		     * Pie Chart
+    		     */
+    		    var pieChart = $('#pie-chart');
+    			var colorsArr = [];
+    			for(var i =0; i<clickNum.length;i++){
+    				if(clickNum[i] > 255){//red
+    					colorsArr.push('rgba(255, '+(clickNum[i]%255)+', '+(clickNum[i]*20%255)+', 0.5)');
+    					
+    				} else if(clickNum[i] > 168){//green
+    					colorsArr.push('rgba('+(clickNum[i]%255)+', 255,'+(clickNum[i]*20%255)+', 0.5)');
+    					
+    				} else{//blue
+    					colorsArr.push('rgba('+(clickNum[i]%255)+', '+(clickNum[i]*20%255)+', 255, 0.5)');
+    					
+    				}
+    				
+    			}
+    		    
+    		    if (pieChart.length > 0) {
+    		        new Chart(pieChart, {
+    		            type: 'pie',
+    		            data: {
+    		                labels: dateArr,
+    		                datasets: [{
+    		                    label: '访问次数',
+    		                    data: clickNum,
+    		                    backgroundColor: colorsArr,
+    		                    borderColor: colorsArr,
+    		                    borderWidth: 1
+    		                }]
+    		            }
+    		        });
+    		    }
+	
+              }
+        });
+        
+        
+        // 搜索按钮点击事件
+        $('#pageClicks-btn-search').click(function () {
+            pageClicksTable.reload({where: crown.getSearchForm()});
+		    
+        });
+    });
+</script>

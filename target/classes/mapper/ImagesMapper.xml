@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.crown.mapper.ImagesMapper">
+<select id="findCount" resultType="int">
+	select count(*) from webimages where gallery_uuid=#{galleryUuid} and deleted="0"
+</select>
+
+<update  id="addImgVisits">
+		update webimages set visits=visits+1 where id=#{id}
+</update>
+<update  id="addImageThumbsUpById">
+		update webimages set thumbs_up=thumbs_up+#{num} where id=#{id}
+</update>
+</mapper>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+	<style type="text/css" media="screen" id="test">
+	input,textarea{
+	/* background-color: #F2F2F2; */
+	border: 1px solid #999;
+	font-size:22px;
+	
+	}
+	p{
+		font: 150% "Lucida Grande", "Trebuchet MS", Verdana, sans-serif;
+
+			
+		}
+		#divbutton{
+			height:15%;
+			text-align: center;
+			
+		}
+	
+		.button {
+		margin-top:5%;
+		 background-color: #4CAF50;
+   /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 10px;
+    border-radius: 12px;
+}
+.button:hover {
+    background-color: #96B97D; /* Green */
+    color: white;
+}
+	
+		div{
+			/* border: 1px solid #999; */
+			border-radius:10px 10px 0 0;
+	
+		}
+		#divmain{
+			border: 2px solid #999;
+			width:30%;
+			height:600px;
+			margin-left: auto;
+			margin-right: auto;
+			margin-top: 10%;
+			 background-color: #FFFFFF;		
+		}
+		#divtitle{
+			height:20%;
+			margin-top:5%;
+			
+		}
+		#inputtile{
+			height:30%;
+			width:99.5%;
+			
+		}
+		
+	</style>
+
+</head>
+<body>
+	<div id="divmain">
+	<div id="divtitle" class="test">
+		<p>标题</p>
+		<input id="inputtile"type="text" name="test" value="" />
+	</div>
+	<div id="detail" class="test">
+		<p>活动详情</p>
+		<textarea id = "texta" name="test" rows="6" cols="43">
+			
+		</textarea>
+	</div>
+	<div id="img1" class="test">
+		<p>封面图片</p>
+		
+		<input id="img1" name="upfile"  multiple="multiple" type="file">
+		<input id="img2" name="upfile"  multiple="multiple" type="file">
+		
+	</div>
+	
+		<div id="divbutton" class="test">
+		<input id="submit" class="button" type="button" name="test" value="保存" />
+		</div>
+	
+</div>
+	
+	
+	
+
+</body>
+<script src="./js/jquery-3.2.1.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+$("#submit").click(function(){
+	var title = $("#inputtile").val();
+	var detail = $("#texta").val();
+	var img1='123345r44126789'; //$("#img1").val();
+	var img2='3412341234124';//$("#img2").val();
+	alert("aaa");
+	var data=JSON.stringify({
+					        "title":title,
+							"detail":detail,
+							"img1":img1,
+							"img2":img2
+					    });
+		$.ajax({
+					    type: "put",
+					    url: "activityDetail/113bd20336645836471e4f062a8e4fff",
+					    data:data,
+					    dataType: "json",
+					    contentType:"application/json", 
+					    success: function(res){
+					    	if(res.status==201){
+								alert('报名失败！请重试');
+								
+							}else if(res.status==200){
+								window.location.href='index';
+							}else if(res.status==204){
+								alert('验证码错误！！');
+							}
+					    }
+					});
+
+
+
+
+	
+});
+
+</script>
+</html>

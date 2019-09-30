@@ -1,0 +1,94 @@
+
+<form id="gallery" lay-filter="gallery" class="layui-form model-form">
+    
+    <div class="layui-form-item">
+        	<label class="layui-form-label"></label>
+        <div class="layui-input-block" style="position: relative; top: 15px;">
+            	我的第n个相册
+        </div>
+    </div>
+    
+    <!-- <div class="layui-form-item">
+        <label class="layui-form-label">相册类型</label>
+        <div class="layui-input-block">
+            <input type="radio" name="type" value="1" title="免费版相册" checked="checked">
+            <input type="radio" name="type" value="0" title="专业版相册">
+        </div>
+    </div> 
+    <div style="font-size: 12px;color: #999;width: 100%;height: 20px;">免费版相册最多可上传50张照片</div>
+    -->
+    <div class="layui-form-item" >
+        <label class="layui-form-label"></label>
+        <div class="layui-input-block">
+            <input id="theme" name="theme" placeholder="请输入活动名称" type="text" class="layui-input" maxlength="64" lay-verify=""/>
+        </div>
+    </div>
+    
+    <div class="layui-form-item model-form-footer" style="margin-left: 110px;">
+        <button class="layui-btn layui-btn-primary close" type="button">取消</button>
+        <button class="layui-btn" lay-filter="gallery-submit" lay-submit>创建</button>
+    </div>
+</form>
+
+<script>
+    layui.use(['layer', 'crown', 'form'], function () {
+        var layer = layui.layer;
+        var crown = layui.crown;
+        var form = layui.form;
+        var $ = layui.jquery;
+        // 获取所有角色
+        layer.load(2);
+        layer.closeAll('loading');
+        // 表单提交事件
+        form.on('submit(gallery-submit)', function (data) {
+            layer.load(2);
+            console.log(50);
+            console.log(data.field);
+             crown.post('/activity', {data:data.field}, function (res) {
+            	 console.log(res.result.uuid);
+            	 
+                 layer.closeAll('loading');
+                 layer.msg('创建成功', {icon: 1});
+                 parent.$("#addCard").append("<li data = "+res.result.uuid+" class=\"edit-item\">\r\n" + 
+                	 		"					<div class=\"gallery-item\">\r\n" + 
+                   	 		"						<div id=\"card-item\" class=\"card-item\">\r\n" + 
+                   	 		"							<div class=\"item-status\" style=\"background: rgb(255, 33, 49);\">待拍摄</div>\r\n" + 
+                   	 		"							<div class=\"bg-img\">\r\n" + 
+                   	 		"								\r\n" + 
+                   	 		"							</div>\r\n" + 
+                   	 		"							<div class=\"info-wrap\">\r\n" + 
+                   	 		"								<div class=\"theme\">\r\n" + 
+                   	 		"									<span>\r\n" + $("#theme").val() + 
+                   	 		"									</span>\r\n" + 
+                   	 		"								</div>\r\n" + 
+                   	 		"								\r\n" + 
+                   	 		"								<div class=\"content-wrap\">\r\n" + 
+                   	 		"									<div class=\"place-wrap\">\r\n" + 
+                   	 		"										<div class=\"date\">\r\n" + 
+                   	 		"											<img class=\"position-icon___xa9xl\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQwIDc5LjE2MDQ1MSwgMjAxNy8wNS8wNi0wMTowODoyMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkM1NzU2NkZERTBERDExRThBMDQyRUEzMzMyRDA4NUE4IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkM1NzU2NkZFRTBERDExRThBMDQyRUEzMzMyRDA4NUE4Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6QzU3NTY2RkJFMEREMTFFOEEwNDJFQTMzMzJEMDg1QTgiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6QzU3NTY2RkNFMEREMTFFOEEwNDJFQTMzMzJEMDg1QTgiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz6HJW1rAAABNklEQVR42pzTvy8DcRjH8evxR1ikEhGD8UTE4JISkSbEwG5isJnNHQwsajCbCAnRsJTWpPUHlIhENRJ/gZic9xOfyjffuKb1JK/c5e55nrvvr0wURYEXGUxiHlk9e0UZt0jc5NArnsAddvCBU/nENmrK+Y1+535FhWu49Bqfo6C/OsEmjt0G49hFjGencEDXd12vkMMNXnAfasz7WPeKLVbFjSflFq3WGkzjC6Wg+yhpMmNrMKsx9hpnmLE5GMRFh8TYWbpDvOn+EQvtSUw6fCXx9kjgL2MLoykNGvJXWE0r1A5b/MccWE3ZGlTRh3wPxXnVVEONcQMHGO6ieES5VpO0z0Jd27Oi7ZoW9u5auXX/LByhiT1saQUe9G4MS/rtZR2qn2VJOc5TmMOQnjW1/yv+kn8LMACBZ0OBCnfxeAAAAABJRU5ErkJggg==\">\r\n" + 
+                   	 		"										</div>\r\n" + 
+                   	 		"										<div class=\"position\">\r\n" + 
+                   	 		"											<img class=\"position-icon___xa9xl\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQwIDc5LjE2MDQ1MSwgMjAxNy8wNS8wNi0wMTowODoyMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkM1NzU2NkY5RTBERDExRThBMDQyRUEzMzMyRDA4NUE4IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkM1NzU2NkZBRTBERDExRThBMDQyRUEzMzMyRDA4NUE4Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6QzU3NTY2RjdFMEREMTFFOEEwNDJFQTMzMzJEMDg1QTgiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6QzU3NTY2RjhFMEREMTFFOEEwNDJFQTMzMzJEMDg1QTgiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5zpn9TAAABQUlEQVR42oTSTShFQRTA8Xk8K9Z6ydIKJXVZWVgrIRspJGsrH2XFzsLHRlbIykf5KGVBStjRpZQ8SinZyEJZSq7/qXPrNOY+p341M3fm3Jk5k0uSxEVR5LyoRR8atX+HbbzaSXEcuzL3NyZwhQIOVUHHJv3Jea8/hS40482M72IOByjHbChBHUbRhPfAziRhJ26xgycZtEcYxKpZXI8jHKNBx+TbCobSRTZBK85NX5JtYVMXpXGBltAREpVGJR61XZU1zya4gdTzVPvj2Mc3RrydXocSbGAP8/jBCWq8i5QjD6M7dAf3KNoLCsSAVqGY9Q7GcKaPxy9lNabR7m/JxjOWsIacGZf2OhbxUiqBxAIq9G9pzOALy/895bRM/bjEg/69B21emTMTSHygQ+/D6bk/QxPzJW5c3nqvaQfjV4ABAFS0SB7oNh12AAAAAElFTkSuQmCC\">\r\n" + 
+                   	 		"										</div>\r\n" + 
+                   	 		"									</div>\r\n" + 
+                   	 		"									\r\n" + 
+                   	 		"									<div class=\"func-wrap\">\r\n" + 
+                   	 		"										<i data = "+res.result.uuid+" class=\"icon-delete\">\r\n" + 
+                   	 		"											<svg viewBox=\"64 64 896 896\" class=\"\" data-icon=\"delete\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path fill=\"#e6f7ff\" d=\"M292.7 840h438.6l24.2-512h-487z\"></path><path fill=\"#1890ff\" d=\"M864 256H736v-80c0-35.3-28.7-64-64-64H352c-35.3 0-64 28.7-64 64v80H160c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h60.4l24.7 523c1.6 34.1 29.8 61 63.9 61h454c34.2 0 62.3-26.8 63.9-61l24.7-523H888c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zm-504-72h304v72H360v-72zm371.3 656H292.7l-24.2-512h487l-24.2 512z\"></path></svg>\r\n" + 
+                   	 		"										</i>\r\n" + 
+                   	 		"									</div>\r\n" + 
+                   	 		"								</div>\r\n" + 
+                   	 		"								\r\n" + 
+                   	 		"							</div>\r\n" + 
+                   	 		"							\r\n" + 
+                   	 		"						</div>\r\n" + 
+                   	 		"					</div>\r\n" + 
+                   	 		"				</li>");
+             	
+                 crown.finishPopupCenter();
+             });
+            return false;
+        });
+        
+    });
+</script>

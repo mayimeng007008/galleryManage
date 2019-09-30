@@ -1,0 +1,86 @@
+logging:
+  config: classpath:log4j2.xml
+mybatis-plus:
+  mapper-locations: classpath:mapper/*Mapper.xml
+  global-config:
+    db-config:
+      field-strategy: not_empty
+      id-type: auto
+      db-type: mysql
+    banner: false
+    super-mapper-class: org.crown.framework.mapper.BaseMapper
+  type-enums-package: org.crown.enums
+  type-aliases-package: org.crown.model.entity,org.crown.model.dto
+lycm:
+  uploadPath: G://img//
+  isDayType: true
+  imagePath: G://img//
+  scaleImgPath: G://img//resizeFiles//
+  high-scale-size: 0.5f
+  high-quality-size: 0.5f
+  scale-size: 0.3f
+  quality-size: 0.25f
+  img-size: 10 #image size less than 10M
+  file-size: 50 #file size less than 50M
+  
+server:
+  port: 8087
+  servlet:
+    context-path: /
+#invalidate way   
+#spring.servlet.multipart.max-request-size=30Mb
+#spring.mvc.static-path-pattern: /static/**
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 50MB
+  jackson:
+    time-zone: GMT+8
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+      FAIL_ON_EMPTY_BEANS: false
+    deserialization:
+      FAIL_ON_UNKNOWN_PROPERTIES: false
+    default-property-inclusion: non_null
+    mapper:
+      PROPAGATE_TRANSIENT_MARKER: true
+    parser:
+      ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER: true
+  liquibase:
+    enabled: false
+  datasource:
+    #url: jdbc:p6spy:mysql://localhost:3306/crown?characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+    url: jdbc:p6spy:mysql://192.168.1.102:3306/crown?characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    #password: 123456
+    password: 
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+    hikari:
+      auto-commit: false
+      connection-timeout: 30000
+      idle-timeout: 25000
+      login-timeout: 5
+      max-lifetime: 30000
+      read-only: false
+      validation-timeout: 3000
+      maximum-pool-size: 15
+      minimum-idle: 10
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+        useLocalSessionState: true
+        rewriteBatchedStatements: true
+        cacheResultSetMetadata: true
+        #cacheServerConfiguration: true
+        cacheServerConfiguration: false
+        elideSetAutoCommits: true
+        maintainTimeStats: false
+  aop:
+    auto: true
+    proxy-target-class: true
+    

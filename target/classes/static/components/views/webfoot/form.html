@@ -1,0 +1,193 @@
+<!-- webfoot琛ㄥ崟寮圭獥 -->
+<form id="webfoot-form" lay-filter="webfoot-form" class="layui-form model-form">
+    <input name="id" type="hidden"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">缃戠珯logo</label>
+        <div class="layui-input-inline">
+
+            <div  id="logoImg" >
+                <img src="" style="width: 100%; height: 100%;" class="layui-upload-img">
+            </div>
+
+        </div>
+        <div class="layui-input-block">
+            <!-- <input id="logo" name="logoName" placeholder="璇疯緭鍏ョ綉绔檒ogo鍚嶇О" type="text" class="layui-input" lay-verify="required"/> -->
+            <input id="photo" name="logo" type="hidden">
+            <input id="scalePhoto" name="scalePhoto" type="hidden">
+        </div>
+    </div>
+    <div class="layui-form-item">
+    	<label class="layui-form-label"></label>
+    	<div class="layui-input-block">
+    		<button type="button" class="layui-btn" id="uploadImg">
+			  <i class="layui-icon">&#xe67c;</i>涓婁紶logo鍥剧墖
+			</button>
+		</div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">缃戠珯banner鍥�</label>
+        <div class="layui-input-inline">
+
+            <div  id="bannerImg" >
+                <img src="" style="width: 100%; height: 100%;" class="layui-upload-img">
+            </div>
+
+        </div>
+        <div class="layui-input-block">
+            <input id="photo2" name="bannerImg" type="hidden">
+            <input id="scalePhoto2" name="scalePhoto2" type="hidden">
+        </div>
+    </div>
+    <div class="layui-form-item">
+    	<label class="layui-form-label"></label>
+    	<div class="layui-input-block">
+    		<button type="button" class="layui-btn" id="uploadImg2">
+			  <i class="layui-icon">&#xe67c;</i>涓婁紶banner鍥剧墖
+			</button>
+		</div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">棣嗗埆ID</label>
+        <div class="layui-input-block">
+            <input name="libId" placeholder="璇疯緭鍏ラ鍒獻D" type="text" class="layui-input" maxlength="20"
+                   lay-verify="required"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">鍦板潃</label>
+        <div class="layui-input-block">
+            <input name="addressZhCn" placeholder="璇疯緭鍏ュ湴鍧�" type="text" class="layui-input" maxlength="20"
+                   lay-verify="required"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">鑱旂郴鐢佃瘽</label>
+        <div class="layui-input-block">
+            <input name="phone" placeholder="璇疯緭鍏ユ墜鏈哄彿" type="text" class="layui-input" lay-verify="phone"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">浼犵湡</label>
+        <div class="layui-input-block">
+            <input name="fax" placeholder="璇疯緭鍏ヤ紶鐪�" type="text" class="layui-input" maxlength="20"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">閭</label>
+        <div class="layui-input-block">
+            <input name="email" placeholder="璇疯緭鍏ラ偖绠�" type="text" class="layui-input" lay-verify="email|required"/>
+        </div>
+    </div>
+    <div class="layui-form-item model-form-footer">
+        <button class="layui-btn layui-btn-primary close" type="button">鍙栨秷</button>
+        <button class="layui-btn" lay-filter="webfoot-form-submit" lay-submit>淇濆瓨</button>
+    </div>
+</form>
+
+<script>
+    layui.use(['layer', 'crown', 'config', 'form', 'upload'], function () {
+        var layer = layui.layer;
+        var crown = layui.crown;
+        var config = layui.config;
+        var form = layui.form;
+        var $ = layui.jquery;
+        
+        var upload = layui.upload;
+        
+        //鎵ц瀹炰緥
+        var uploadInst = upload.render({
+          elem: '#uploadImg' //缁戝畾鍏冪礌
+          ,url: '/webfoots/upload' //涓婁紶鎺ュ彛
+          ,headers: {Authorization: config.getToken()}
+       	  ,before: function(obj){
+                //棰勮锛屼笉鏀寔ie8
+                obj.preview(function(index, file, result){
+                    $('#logoImg').find('img').remove();
+                    $('#logoImg').append('<img src="'+ result +'" alt="'+ file.name +'" style="width: 100%; height: 100%;" class="layui-upload-img ">');
+
+                });
+            }
+          ,done: function(res){
+        	  res = res.result;
+        	  if(!res.flag){
+                  layer.msg(res.msg,{icon: 5,anim: 6});
+              }else{
+            	  console.log("res.msg:"+res.msg.imgInfo.imgUrlPath);
+                  $("#photo").val(res.msg.imgInfo.fileName);
+                  $("#scalePhoto").val(res.msg.imgInfo.imgUrlPath);
+                  
+              }
+            //涓婁紶瀹屾瘯鍥炶皟
+            console.log(res);
+          }
+          ,error: function(e){
+            console.log(e);
+            //璇锋眰寮傚父鍥炶皟
+          }
+        });
+        
+        //banner鍥剧墖涓婁紶
+        var uploadInst = upload.render({
+            elem: '#uploadImg2' //缁戝畾鍏冪礌
+            ,url: '/webfoots/upload' //涓婁紶鎺ュ彛
+            ,headers: {Authorization: config.getToken()}
+         	  ,before: function(obj){
+                  //棰勮锛屼笉鏀寔ie8
+                  obj.preview(function(index, file, result){
+                      $('#bannerImg').find('img').remove();
+                      $('#bannerImg').append('<img src="'+ result +'" alt="'+ file.name +'" style="width: 100%; height: 100%;" class="layui-upload-img ">');
+
+                  });
+              }
+            ,done: function(res){
+          	  res = res.result;
+          	  if(!res.flag){
+                    layer.msg(res.msg,{icon: 5,anim: 6});
+                }else{
+              	  console.log("res.msg:"+res.msg);
+                    $("#photo2").val(res.msg.imgInfo.fileName);
+                    $("#scalePhoto2").val(res.msg.imgInfo.imgUrlPath);
+                }
+              //涓婁紶瀹屾瘯鍥炶皟
+              console.log(res);
+            }
+            ,error: function(e){
+              console.log(e);
+              //璇锋眰寮傚父鍥炶皟
+            }
+          });
+     	// 鍥炴樉webfoot鏁版嵁
+        var webfoot = crown.getTempData('t_webfoot');
+        if (webfoot) {
+            form.val('webfoot-form', webfoot);
+            //$("#loginName").attr("readonly", "readonly");
+            $('#logoImg').find('img').remove();
+            $('#logoImg').append('<img src="images/'+ webfoot.logo +'" style="width: 100%; height: 100%;" class="layui-upload-img ">');
+            //banner鍥�
+            $('#bannerImg').find('img').remove();
+            $('#bannerImg').append('<img src="images/'+ webfoot.bannerImg +'" style="width: 100%; height: 100%;" class="layui-upload-img ">');
+        
+        }
+
+        // 琛ㄥ崟鎻愪氦浜嬩欢
+        form.on('submit(webfoot-form-submit)', function (data) {
+            layer.load(2);
+
+            if (data.field.id) {
+                crown.put('/webfoots/' + data.field.id, {data: data.field}, function () {
+                    layer.closeAll('loading');
+                    layer.msg('淇敼鎴愬姛', {icon: 1});
+                    crown.finishPopupCenter();
+                });
+            } else {
+                crown.post('/webfoots', {data:data.field}, function () {
+                    layer.closeAll('loading');
+                    layer.msg('娣诲姞鎴愬姛', {icon: 1});
+                    crown.finishPopupCenter();
+                });
+            }
+            return false;
+        });
+        
+    });
+</script>

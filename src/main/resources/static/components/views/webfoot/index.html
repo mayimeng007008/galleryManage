@@ -1,0 +1,134 @@
+<div class="layui-card">
+    <div class="layui-card-header">
+        <h2 class="header-title">网站底部管理</h2>
+        <span class="layui-breadcrumb pull-right">
+          <a href="#!console">首页</a>
+          <a><cite>网站底部管理</cite></a>
+        </span>
+    </div>
+    <div class="layui-card-body">
+        <!-- 搜索条件 -->
+        <div class="layui-form toolbar">
+            <form id="searchForm" onsubmit="return false;">
+                地址：<input name="addressZhCn" class="layui-input search-input" type="text" placeholder="输入地址"/>&emsp;
+         <button id="webfoot-btn-search" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>      
+            </form>
+        </div>
+        <!-- 表格顶部操作列 -->
+        <script type="text/html" id="webfoot-toolbar">
+            <div class="layui-btn-container">
+                {{# if({{addShow}} == true){ }}
+                <button class="layui-btn layui-btn-normal layui-btn-sm" lay-event="add"><i
+                        class="layui-icon">&#xe654;</i>添加
+                </button>
+                {{# } }}
+            </div>
+        </script>
+        <table class="layui-table" id="webfoot-table" lay-filter="webfoot-table"></table>
+    </div>
+</div>
+
+<!-- 表格操作列 -->
+<script type="text/html" id="webfoot-table-bar">
+    {{#  if({{editShow}} == true){ }}
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
+    {{#  } }}
+    {{#  if({{deleteShow}} == true){ }}
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    {{#  } }}
+</script>
+
+<script>
+    layui.use(['form', 'table', 'config', 'crown'], function () {
+        var form = layui.form;
+        var table = layui.table;
+        var config = layui.config;
+        var layer = layui.layer;
+        var crown = layui.crown;
+        $('#webfoot-toolbar').vm({
+            addShow: crown.hasPerm("sys:webfoot:add")
+        });
+        $('#webfoot-table-bar').vm({
+            editShow: crown.hasPerm("sys:webfoot:edit"),
+            deleteShow: crown.hasPerm("sys:webfoot:delete")
+        });
+        // 渲染表格
+        var webfootTable = table.render({
+            elem: '#webfoot-table',
+            toolbar: '#webfoot-toolbar',
+            url: config.serverUrl + '/webfoots',
+            request: config.request,
+            parseData: config.parseData,
+            response: config.response,
+            headers: {Authorization: config.getToken()},
+            page: true,
+            
+            cols: [[
+                {field: 'id', width: 60, title: 'ID'},
+                {field: 'logo', align: 'center', sort: true, title: '网站logo图 '},
+                {field: 'bannerImg', align: 'center', sort: true, title: '网站banner图'},
+                {field: 'libId', align: 'center', sort: true, title: '馆别ID'},
+                {field: 'addressZhCn', align: 'center', sort: true, title: '地址'},
+                {field: 'phone', align: 'center', sort: true, title: '联系电话'},
+                {field: 'fax', align: 'center', sort: true, title: '传真'},
+                {field: 'email', align: 'center', sort: true, title: '邮箱'},
+                {field: 'createTime', align: 'center', sort: true, title: '创建时间'},
+                {align: 'center', toolbar: '#webfoot-table-bar', title: '操作'}
+            ]]
+        });
+        // 表格顶部操作列
+        table.on('toolbar(webfoot-table)', function (obj) {
+            if (obj.event === 'add') {
+                showEditModel();
+            }
+        });
+        // 表格操作列事件
+        table.on('tool(webfoot-table)', function (obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+
+            if (layEvent === 'edit') {
+                // 修改
+                showEditModel(data);
+            } else if (layEvent === 'del') {
+            	doDelete(obj);
+            }
+        });
+
+        //显示表单弹窗
+        var showEditModel = function (data) {
+            if (data) {
+                crown.get('/webfoots/' + data.id, {async:false}, function (data) {
+                    crown.putTempData('t_webfoot', data.result);
+                });
+            }
+            crown.popupCenter({
+                title: data ? '修改网站底部' : '添加网站底部',
+                path: 'components/views/webfoot/form.html',
+                finish: function () {
+                    webfootTable.reload('webfoot-table', {});
+                }
+            });
+        };
+
+        // 搜索按钮点击事件
+        $('#webfoot-btn-search').click(function () {
+            webfootTable.reload({where: crown.getSearchForm()});
+        });
+
+     // 删除
+        var doDelete = function (obj) {
+            layer.confirm('确定要删除吗？', function (i) {
+                layer.close(i);
+                //layer.load(2);
+                crown.delete('/webfoots/' + obj.data.id, {}, function () {
+                    layer.closeAll('loading');
+                    layer.msg('删除成功', {icon: 1});
+                    obj.del();
+                });
+                webfootTable.reload({where: crown.getSearchForm()});
+            });
+        };
+        
+    });
+</script>

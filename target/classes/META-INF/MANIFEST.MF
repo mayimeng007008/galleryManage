@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Title: Crown
+Implementation-Version: 2.0
+Built-By: Administrator
+Implementation-Vendor-Id: org.crown
+Build-Jdk: 1.8.0_221
+Implementation-URL: https://projects.spring.io/spring-boot/#/spring-bo
+ ot-starter-parent/crown
+Created-By: Maven Integration for Eclipse
+
